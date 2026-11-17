@@ -69,6 +69,7 @@ export interface ApiClient {
   get<T>(path: string, signal?: AbortSignal): Promise<T>;
   post<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T>;
   patch<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T>;
+  delete(path: string, signal?: AbortSignal): Promise<void>;
 }
 
 function createClient(base: string): ApiClient {
@@ -86,6 +87,7 @@ function createClient(base: string): ApiClient {
         body: JSON.stringify(body ?? {}),
         signal,
       }),
+    delete: (path, signal) => request<void>(base, path, { method: "DELETE", signal }),
   };
 }
 

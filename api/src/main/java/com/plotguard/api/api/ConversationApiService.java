@@ -5,6 +5,7 @@ import com.plotguard.api.dto.UpdateConversationDto;
 import com.plotguard.api.entity.Conversation;
 import com.plotguard.api.repository.ContentRepository;
 import com.plotguard.api.repository.ConversationRepository;
+import com.plotguard.api.repository.MessageRepository;
 import com.plotguard.api.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ public class ConversationApiService {
 
     @Autowired
     private ContentRepository contentRepository;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
     @Transactional
     public Conversation createConversation(NewConversationDto newConversationDto) throws InvalidAttributesException {
@@ -58,5 +62,14 @@ public class ConversationApiService {
                 .orElseThrow(() -> new EntityNotFoundException("Conversation with given ID and user does not exist"));
         conversation.setMaxStoryOrder(updateConversationDto.getMaxStoryOrder());
         return conversationRepository.save(conversation);
+    }
+
+    @Transactional
+    public void deleteConversation(UUID conversationId, UUID userId) {
+        Conversation conversation = conversationRepository.findByConversationIdAndUserId(
+                        conversationId, userId)
+                .orElseThrow(() -> new EntityNotFoundException("Conversation with given ID and user does not exist"));
+        messageRepository.deleteAllByConversationId(conversation.getConversationId());
+        conversationRepository.delete(conversation);
     }
 }

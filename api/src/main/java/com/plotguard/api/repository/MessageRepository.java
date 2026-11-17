@@ -12,4 +12,6 @@ import java.util.UUID;
 public interface MessageRepository extends JpaRepository<Message, UUID> {
     List<Message> findAllByConversationIdOrderByCreatedAtAsc(UUID conversationId);
     long countByConversationIdAndRole(UUID conversationId, MessageRole role);
+
+    void deleteAllByConversationId(UUID conversationId);
 }

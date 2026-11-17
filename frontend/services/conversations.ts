@@ -25,12 +25,19 @@ export interface UpdateConversationRequest {
 }
 
 /** POST /api/conversations — creates the durable conversation record. This
- * replaces the temporary AI-service `/test/conversations` workaround. */
+ * replaces the temporary AI-service `/test/conversations` workaround. Bumps
+ * the conversation-store revision so open sidebars pick the new conversation
+ * up without a page reload. */
 export function createConversation(
   request: NewConversationRequest,
   signal?: AbortSignal,
 ): Promise<CoreConversation> {
-  return coreApi.post<CoreConversation>("/conversations", request, signal);
+  return coreApi.post<CoreConversation>("/conversations", request, signal).then(
+    (conversation) => {
+      useConversationStore.getState().notifyChanged();
+      return conversation;
+    },
+  );
 }
 
 /** GET /api/conversations/{id} */
@@ -65,17 +72,39 @@ export function fetchConversationMessages(
 
 /** PATCH /api/conversations/{id} — persists a spoiler-boundary change. The
  * per-request `max_story_order` sent to the AI keeps chat correct regardless,
- * so callers may treat a failure here as non-fatal (consistency-only). */
+ * so callers may treat a failure here as non-fatal (consistency-only).
+ * Bumps the store revision so sidebars reorder on the new updated_at. */
 export function patchConversationBoundary(
   conversationId: string,
   request: UpdateConversationRequest,
   signal?: AbortSignal,
 ): Promise<CoreConversation> {
-  return coreApi.patch<CoreConversation>(
-    `/conversations/${conversationId}`,
-    request,
-    signal,
-  );
+  return coreApi
+    .patch<CoreConversation>(`/conversations/${conversationId}`, request, signal)
+    .then((conversation) => {
+      useConversationStore.getState().notifyChanged();
+      return conversation;
+    });
+}
+
+/** DELETE /api/conversations/{id}?user_id={userId} — removes the conversation
+ * and all of its messages server-side (204). Ownership-scoped like the
+ * messages endpoint; a user/conversation mismatch surfaces as 404 ApiError.
+ * Marks the conversation deleted in the local store so every open sidebar
+ * hides it immediately. */
+export function deleteConversation(
+  conversationId: string,
+  userId: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  return coreApi
+    .delete(
+      `/conversations/${conversationId}?user_id=${encodeURIComponent(userId)}`,
+      signal,
+    )
+    .then(() => {
+      useConversationStore.getState().remove(conversationId);
+    });
 }
 
 /** Title cache for display-only lookups (sidebar). */

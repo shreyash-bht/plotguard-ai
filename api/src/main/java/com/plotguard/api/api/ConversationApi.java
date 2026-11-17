@@ -4,6 +4,7 @@ import com.plotguard.api.dto.NewConversationDto;
 import com.plotguard.api.dto.UpdateConversationDto;
 import com.plotguard.api.entity.Conversation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.directory.InvalidAttributesException;
@@ -34,5 +35,11 @@ public class ConversationApi {
     @PatchMapping("/{conversationId}")
     public Conversation updateConversation(@PathVariable UUID conversationId, @RequestBody UpdateConversationDto updateConversationDto) throws InvalidAttributesException {
         return conversationApiService.updateConversation(conversationId, updateConversationDto);
+    }
+
+    @DeleteMapping("/{conversationId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteConversation(@PathVariable UUID conversationId, @RequestParam("user_id") UUID userId) {
+        conversationApiService.deleteConversation(conversationId, userId);
     }
 }
