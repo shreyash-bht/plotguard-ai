@@ -69,7 +69,7 @@ class PostgresChatRepository:
         contextualized_question: str,
         assistant_answer: str,
     ) -> None:
-        query = """
+        insert = """
             INSERT INTO messages (
                 conversation_id,
                 role,
@@ -80,11 +80,12 @@ class PostgresChatRepository:
                 (%s, %s, %s, %s),
                 (%s, %s, %s, %s)
         """
+        touch = "UPDATE conversations SET updated_at = NOW() WHERE conversation_id = %s"
 
         with psycopg.connect(self._database_url) as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    query,
+                    insert,
                     (
                         conversation_id,
                         "user",
@@ -97,6 +98,7 @@ class PostgresChatRepository:
                         None,
                     ),
                 )
+                cursor.execute(touch, (conversation_id,))
 
     def create_conversation(
         self,

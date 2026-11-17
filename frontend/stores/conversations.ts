@@ -8,7 +8,14 @@ interface ConversationEntry {
 }
 
 interface ConversationState extends ConversationEntry {
+  /** Conversation ids deleted on this device; server lists are filtered by these. */
+  deletedIds: Record<string, true>;
+  /** Change signal: bumped on create/update/delete so live lists can refetch. */
+  revision: number;
   save: (ref: ConversationRef) => void;
+  /** Marks a conversation deleted: drops the ref, hides it, pings listeners. */
+  remove: (conversationId: string) => void;
+  notifyChanged: () => void;
 }
 
 /**
@@ -20,9 +27,27 @@ export const useConversationStore = create<ConversationState>()(
   persist(
     (set) => ({
       map: {},
+      deletedIds: {},
+      revision: 0,
       save: (ref) => set((s) => ({ map: { ...s.map, [ref.conversation_id]: ref } })),
+      remove: (conversationId) =>
+        set((s) => {
+          const map = { ...s.map };
+          delete map[conversationId];
+          return {
+            map,
+            deletedIds: { ...s.deletedIds, [conversationId]: true },
+            revision: s.revision + 1,
+          };
+        }),
+      notifyChanged: () => set((s) => ({ revision: s.revision + 1 })),
     }),
-    { name: "plotguard-conversations", version: 1 },
+    {
+      name: "plotguard-conversations",
+      version: 1,
+      // Only persisted data; the change signal is session-local.
+      partialize: (s) => ({ map: s.map, deletedIds: s.deletedIds }),
+    },
   ),
 );
 

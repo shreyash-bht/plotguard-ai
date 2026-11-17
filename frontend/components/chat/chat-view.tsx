@@ -129,6 +129,9 @@ export function ChatView({ conversationId }: ChatViewProps) {
           ),
         );
         lastFailedQuestion.current = null;
+        // Chat activity bumps updated_at server-side; ping the sidebars so
+        // they refetch and the conversation bubbles to the top of "Recent".
+        useConversationStore.getState().notifyChanged();
       } catch (err) {
         setMessages((prev) =>
           prev.map((m) =>
