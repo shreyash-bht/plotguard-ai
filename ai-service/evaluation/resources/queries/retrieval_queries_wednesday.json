@@ -1,0 +1,447 @@
+{
+  "name": "wednesday-season1-episode-retrieval",
+  "description": "Retrieval evaluation dataset for Wednesday episode chunks. Chunk references use e{story_order}-c{chunk_index} so they survive re-chunking. boundary_violation cases: user has watched up to user_story_order; relevant_chunks are future spoilers that must NOT be retrieved. negative cases: not answerable from the chunk data; relevant_chunks is empty (measures false-positive rate).",
+  "cases": [
+    {
+      "id": "q_wednesday_101",
+      "type": "direct_fact",
+      "query": "How does Wednesday get revenge on the boys who bullied Pugsley?",
+      "user_story_order": 1,
+      "relevant_episodes": [
+        "e1"
+      ],
+      "relevant_chunks": [
+        "e1-c0"
+      ],
+      "answer": "She has a vision that pinpoints the culprits, then brings two bags full of piranhas to the school swimming pool and releases them; the fish chase the bullies and one of them is attacked while Wednesday smirks.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_102",
+      "type": "direct_fact",
+      "query": "What is the name of the canoe race at Nevermore and which team finally wins it?",
+      "user_story_order": 2,
+      "relevant_episodes": [
+        "e2"
+      ],
+      "relevant_chunks": [
+        "e2-c1",
+        "e2-c5"
+      ],
+      "answer": "It is the Poe Cup, part canoe race and part foot chase, which Bianca Barclay's team wins every year; Enid's team wins this time after Thing punches the siren (Kent) underwater.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_103",
+      "type": "direct_fact",
+      "query": "What item does Wednesday pick up in the woods that triggers a vision about Rowan?",
+      "user_story_order": 2,
+      "relevant_episodes": [
+        "e2"
+      ],
+      "relevant_chunks": [
+        "e2-c3"
+      ],
+      "answer": "Rowan's glasses. Touching them gives her a vision of Rowan dropping a gargoyle with his mind, arguing with Xavier, and tearing the drawing out of a book.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_104",
+      "type": "direct_fact",
+      "query": "Which body part was missing from Fabian's corpse?",
+      "user_story_order": 4,
+      "relevant_episodes": [
+        "e4"
+      ],
+      "relevant_chunks": [
+        "e4-c0"
+      ],
+      "answer": "His left foot. Wednesday concludes each victim had one specific body part removed and that the monster is collecting trophies like a serial killer.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_105",
+      "type": "direct_fact",
+      "query": "What does Uncle Fester say the monster is called?",
+      "user_story_order": 7,
+      "relevant_episodes": [
+        "e7"
+      ],
+      "relevant_chunks": [
+        "e7-c0"
+      ],
+      "answer": "He instantly recognizes the creature from Wednesday's drawing as a Hyde and points her to Faulkner's diary, which has a detailed explanation of the creature and is kept in the Nightshade Society's library.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_106",
+      "type": "direct_fact",
+      "query": "Why does Enid fear she may never become a full werewolf?",
+      "user_story_order": 1,
+      "relevant_episodes": [
+        "e1"
+      ],
+      "relevant_chunks": [
+        "e1-c7"
+      ],
+      "answer": "Enid is a late-blooming werewolf who currently only has claws and no other werewolf abilities; the best lycanologist, who lives in Milwaukee, told her she may never transform, which would leave her a lone wolf ostracized from werewolf society.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_107",
+      "type": "direct_fact",
+      "query": "What does Wednesday take from the Gates mansion that hints someone is watching her?",
+      "user_story_order": 6,
+      "relevant_episodes": [
+        "e6"
+      ],
+      "relevant_chunks": [
+        "e6-c4"
+      ],
+      "answer": "A ballerina music box she stole from the Gates mansion. It belonged to Laurel Gates, Garrett's sister, and inside the box are photographs suggesting that someone is stalking Wednesday.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_108",
+      "type": "paraphrase",
+      "query": "What drove the Jericho coroner to take his own life?",
+      "user_story_order": 5,
+      "relevant_episodes": [
+        "e5"
+      ],
+      "relevant_chunks": [
+        "e5-c1"
+      ],
+      "answer": "He killed himself in the morgue out of guilt for covering up and faking the report on Garrett Gates' death, leaving a suicide note explaining the motive - which finally gives Sheriff Galpin proof that Gomez is the culprit after 30 years.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_109",
+      "type": "paraphrase",
+      "query": "What was the true cause of Garrett Gates' death?",
+      "user_story_order": 5,
+      "relevant_episodes": [
+        "e5"
+      ],
+      "relevant_chunks": [
+        "e5-c4",
+        "e5-c5"
+      ],
+      "answer": "Morticia confesses she accidentally killed him and Gomez took the fall. Garrett was actually poisoned with nightshade, which made him feral and foaming at the mouth; the poison vial smashed while he fought Gomez, causing self-inflicted poisoning. Garrett and his father had intended to use the poison to kill all the Nevermore students.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_110",
+      "type": "paraphrase",
+      "query": "Who was responsible for the explosion at the ceremony honoring Jericho's founder?",
+      "user_story_order": 3,
+      "relevant_episodes": [
+        "e3"
+      ],
+      "relevant_chunks": [
+        "e3-c4"
+      ],
+      "answer": "Thing lit the match that dramatically blew up the statue while Wednesday kept playing her cello, making her the prime suspect in Weems' eyes.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_111",
+      "type": "paraphrase",
+      "query": "What going-away present does Wednesday receive from a classmate at the end of the semester?",
+      "user_story_order": 8,
+      "relevant_episodes": [
+        "e8"
+      ],
+      "relevant_chunks": [
+        "e8-c6"
+      ],
+      "answer": "Xavier gives her first phone, with his number already saved in it so she can text him once in a while.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_112",
+      "type": "paraphrase",
+      "query": "What did Wednesday notice about the monster's tracks that suggested it had been human?",
+      "user_story_order": 3,
+      "relevant_episodes": [
+        "e3"
+      ],
+      "relevant_chunks": [
+        "e3-c3"
+      ],
+      "answer": "She spots how the monster's footprints turn back into those of a human.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_113",
+      "type": "paraphrase",
+      "query": "According to Faulkner's research, what can awaken the Hyde inside a person?",
+      "user_story_order": 7,
+      "relevant_episodes": [
+        "e7"
+      ],
+      "relevant_chunks": [
+        "e7-c1"
+      ],
+      "answer": "A Hyde is a mutation that lies dormant in a person's body. They can be summoned via a traumatic event, chemical inducement, or hypnosis; once freed, the creature sees its liberator as its master and does their bidding.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_114",
+      "type": "multi_hop",
+      "query": "Why does Wednesday come to suspect Xavier is the monster?",
+      "user_story_order": 7,
+      "relevant_episodes": [
+        "e4",
+        "e7"
+      ],
+      "relevant_chunks": [
+        "e4-c0",
+        "e7-c1"
+      ],
+      "answer": "She finds deep scratch marks on Xavier's neck and follows him to his secret art studio full of monster paintings, and later he is always around when the monster attacks and has an unhealthy obsession with drawing the creature.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_115",
+      "type": "multi_hop",
+      "query": "How did the coroner's suicide note lead to Gomez's arrest?",
+      "user_story_order": 5,
+      "relevant_episodes": [
+        "e5"
+      ],
+      "relevant_chunks": [
+        "e5-c1",
+        "e5-c2"
+      ],
+      "answer": "The coroner left a suicide note admitting he had covered up and faked the report on Garrett Gates' death. The sheriff treated it as the proof he had waited 30 years for and arrested Gomez at Nevermore.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_116",
+      "type": "multi_hop",
+      "query": "What chain of clues leads Wednesday to realize Marilyn Thornhill is really Laurel Gates?",
+      "user_story_order": 8,
+      "relevant_episodes": [
+        "e7",
+        "e8"
+      ],
+      "relevant_chunks": [
+        "e7-c5",
+        "e8-c2"
+      ],
+      "answer": "The mayor was investigating Laurel Gates around his death; the Gates mansion was bought by a 90-year-old heiress who left her fortune to caregiver Teresa L. Glau - an anagram of Laurel Gates - suggesting she returned for revenge. Then Eugene recalls seeing a figure in red boots the night the cave was blown up, and Wednesday realizes Marilyn Thornhill is Laurel Gates.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_117",
+      "type": "multi_hop",
+      "query": "How does Wednesday get off campus while Nevermore is under lockdown?",
+      "user_story_order": 6,
+      "relevant_episodes": [
+        "e6"
+      ],
+      "relevant_chunks": [
+        "e6-c2",
+        "e6-c3"
+      ],
+      "answer": "After the mayor is run over, Weems puts the school under lockdown. Wednesday contacts Tyler to pick her up at the entrance and invites Enid on a girls' night out; both are driven to the Gates Mansion as part of her scheme.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_118",
+      "type": "multi_hop",
+      "query": "What clues led Wednesday to realize Principal Weems had been impersonating Rowan?",
+      "user_story_order": 5,
+      "relevant_episodes": [
+        "e2",
+        "e5"
+      ],
+      "relevant_chunks": [
+        "e2-c2",
+        "e5-c7"
+      ],
+      "answer": "Thing followed Rowan to the station and saw him enter a toilet as a young man and exit as an older man, who then miraculously turned into Principal Weems. Later, Morticia's old yearbook revealed that Larissa is a shapeshifter who covered up Rowan Laslow's death and took on his appearance to pretend he was alive and well.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_119",
+      "type": "multi_hop",
+      "query": "How do the missing body parts from the victims connect to the Gates mansion cellar?",
+      "user_story_order": 6,
+      "relevant_episodes": [
+        "e4",
+        "e6"
+      ],
+      "relevant_chunks": [
+        "e4-c0",
+        "e6-c3"
+      ],
+      "answer": "Wednesday noticed each victim had one specific body part removed and concluded the monster was collecting trophies like a serial killer; the cellar of the Gates mansion then contained the missing body parts of all the creature's victims.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_120",
+      "type": "temporal",
+      "query": "What did Larissa witness at the Rave'N dance in 1990?",
+      "user_story_order": 5,
+      "relevant_episodes": [
+        "e5"
+      ],
+      "relevant_chunks": [
+        "e5-c0"
+      ],
+      "answer": "She saw a boy fall from a great height in the quad and told the police she saw Gomez standing by the edge with a sword in his hand; the deputy (later sheriff) always believed Gomez was the killer.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_121",
+      "type": "temporal",
+      "query": "What happened to Mayor Walker between the hit-and-run and his funeral?",
+      "user_story_order": 7,
+      "relevant_episodes": [
+        "e6",
+        "e7"
+      ],
+      "relevant_chunks": [
+        "e6-c2",
+        "e6-c4",
+        "e7-c0"
+      ],
+      "answer": "He is run over outside the coffee shop before revealing his theory, survives in a coma at the hospital, then a mysterious figure pulls the plug and kills him, and a funeral service is held for him in Jericho.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_122",
+      "type": "temporal",
+      "query": "What happened to Eugene between the night of the dance and the end of the semester?",
+      "user_story_order": 8,
+      "relevant_episodes": [
+        "e4",
+        "e5",
+        "e8"
+      ],
+      "relevant_chunks": [
+        "e4-c5",
+        "e5-c0",
+        "e8-c2"
+      ],
+      "answer": "Eugene was mauled by the monster after witnessing a figure set fire to the cave at the dance. Weems told the parents he was on the mend while he was actually in a coma in the ICU. By the end of the semester he was slowly recovering and able to sit up in bed.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_123",
+      "type": "temporal",
+      "query": "What happened to Gomez between the coroner's suicide note and his release from jail?",
+      "user_story_order": 5,
+      "relevant_episodes": [
+        "e5"
+      ],
+      "relevant_chunks": [
+        "e5-c1",
+        "e5-c2",
+        "e5-c5"
+      ],
+      "answer": "The coroner's suicide note gave Sheriff Galpin proof that Gomez was the culprit. Gomez was arrested and cuffed at Nevermore, and Wednesday visited him in jail, where he recounted his fight with Garrett. After Morticia confessed and Garrett's corpse showed nightshade poisoning, Gomez became a free man.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_124",
+      "type": "relationship",
+      "query": "How is Goody Addams connected to Wednesday?",
+      "user_story_order": 6,
+      "relevant_episodes": [
+        "e3",
+        "e6"
+      ],
+      "relevant_chunks": [
+        "e3-c2",
+        "e6-c0"
+      ],
+      "answer": "Goody Addams is Wednesday's ancestor - the blonde look-alike from her visions who escaped Crackstone's burning of the outcasts. Wednesday tries to raise her spirit in a birthday seance because only Goody can teach her about her psychic powers.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_125",
+      "type": "relationship",
+      "query": "How is Tyler connected to both Sheriff Galpin and the Hyde monster?",
+      "user_story_order": 8,
+      "relevant_episodes": [
+        "e6",
+        "e8"
+      ],
+      "relevant_chunks": [
+        "e6-c2",
+        "e8-c1"
+      ],
+      "answer": "Tyler is Sheriff Galpin's son, and he is privately revealed to be the Hyde monster himself - he admits he enjoys killing and is after Wednesday next.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_126",
+      "type": "relationship",
+      "query": "How did Wednesday get Thing, and how did he help her prepare for the school dance?",
+      "user_story_order": 4,
+      "relevant_episodes": [
+        "e1",
+        "e4"
+      ],
+      "relevant_chunks": [
+        "e1-c2",
+        "e4-c3"
+      ],
+      "answer": "Thing was Gomez's parting gift, dropped off to spy on Wednesday. During the season he intervenes in her love life by inviting Tyler to the dance on her behalf and buying her the gothic dress she had been eyeing.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_127",
+      "type": "boundary_violation",
+      "query": "Who killed Dr. Kinbott?",
+      "user_story_order": 2,
+      "relevant_episodes": [
+        "e7"
+      ],
+      "relevant_chunks": [
+        "e7-c6"
+      ],
+      "answer": "The monster attacks and kills Dr. Kinbott shortly after Wednesday accuses her of being Laurel Gates and Xavier of being the monster.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_128",
+      "type": "boundary_violation",
+      "query": "Who turns out to be the Hyde monster?",
+      "user_story_order": 4,
+      "relevant_episodes": [
+        "e8"
+      ],
+      "relevant_chunks": [
+        "e8-c0",
+        "e8-c1"
+      ],
+      "answer": "Tyler. He admits to Wednesday in a private exchange at the station that he is the monster, that he enjoys killing, and that she is next; he was being controlled by Marilyn with a plant-derived chemical.",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_129",
+      "type": "negative",
+      "query": "What is the plot of the movie Legally Blonde?",
+      "user_story_order": 8,
+      "relevant_episodes": [],
+      "relevant_chunks": [],
+      "answer": "",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    },
+    {
+      "id": "q_wednesday_130",
+      "type": "negative",
+      "query": "How many total seasons does the Wednesday series have?",
+      "user_story_order": 8,
+      "relevant_episodes": [],
+      "relevant_chunks": [],
+      "answer": "",
+      "content_id": "a12186f9-dd4b-49b8-9e5c-773513390f05"
+    }
+  ]
+}
+
