@@ -6,6 +6,7 @@ python-frontmatter
 pandas
 
 langchain-ollama
+langchain-openai
 langchain-google-genai
 langchain-text-splitters
 
