@@ -17,6 +17,11 @@ chat_llm:
   ollama:
     model: ${OLLAMA_CHAT_LLM_MODEL:qwen2.5:3b}
 
+  openrouter:
+    model: ${OPENROUTER_CHAT_LLM_MODEL:openai/gpt-4o-mini}
+    api_key: ${OPENROUTER_API_KEY:}
+    base_url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api/v1}
+
 contextualizer:
   provider: ${CONTEXTUALIZER_PROVIDER:ollama}
 
@@ -26,6 +31,11 @@ contextualizer:
 
   ollama:
     model: ${OLLAMA_CONTEXTUALIZER_MODEL:qwen2.5:1.5b}
+
+  openrouter:
+    model: ${OPENROUTER_CONTEXTUALIZER_MODEL:openai/gpt-4o-mini}
+    api_key: ${OPENROUTER_API_KEY:}
+    base_url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api/v1}
 
 retrieval:
   enable_reranking: ${ENABLE_RERANKING:true}

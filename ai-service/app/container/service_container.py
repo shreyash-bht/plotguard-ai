@@ -2,6 +2,7 @@ import threading
 from app.embedding.embedding_service import EmbeddingService
 from app.llm.gemini_chat_model import GeminiChatModel
 from app.llm.ollama_chat_model import OllamaChatModel
+from app.llm.openrouter_chat_model import OpenRouterChatModel
 from app.retrieval.retrieval_service import RetrievalService
 from app.retrieval.reranker import ChunkReranker
 from app.rag.rag_service import RAGService
@@ -62,15 +63,25 @@ class ServiceContainer:
         return self._chatbot_service
 
     def _create_chat_model(self, settings: Settings):
-        chat_llm_config = settings.chat_llm
-        if chat_llm_config["provider"] == "gemini":
-            return GeminiChatModel(chat_llm_config["gemini"]["model"], chat_llm_config["gemini"]["api_key"])
-        else:
-            return OllamaChatModel(chat_llm_config["ollama"]["model"])
+        return self._build_chat_model(settings.chat_llm)
 
     def _create_contextualizer_model(self, settings: Settings):
-        contextualizer_config = settings.contextualizer
-        if contextualizer_config["provider"] == "gemini":
-            return GeminiChatModel(contextualizer_config["gemini"]["model"], contextualizer_config["gemini"]["api_key"])
-        else:
-            return OllamaChatModel(contextualizer_config["ollama"]["model"])
+        return self._build_chat_model(settings.contextualizer)
+
+    @staticmethod
+    def _build_chat_model(llm_config: dict):
+        provider = llm_config["provider"]
+        if provider == "gemini":
+            return GeminiChatModel(llm_config["gemini"]["model"], llm_config["gemini"]["api_key"])
+        if provider == "openrouter":
+            openrouter_config = llm_config["openrouter"]
+            if not openrouter_config["api_key"]:
+                raise RuntimeError(
+                    "OPENROUTER_API_KEY must be set when the LLM provider is 'openrouter'."
+                )
+            return OpenRouterChatModel(
+                openrouter_config["model"],
+                openrouter_config["api_key"],
+                openrouter_config["base_url"],
+            )
+        return OllamaChatModel(llm_config["ollama"]["model"])
