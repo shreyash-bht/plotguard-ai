@@ -1,9 +1,12 @@
-import json
+import re
 from pydantic import BaseModel
 from pathlib import Path
 import frontmatter
 
 SCRIPT_DIR = Path(__file__).resolve().parent.parent
+CONTENTS_DIR = SCRIPT_DIR / "resources" / "contents"
+
+_SEASON_DIR_PATTERN = re.compile(r"^season(\d+)$")
 
 
 class Content(BaseModel):
@@ -30,46 +33,71 @@ class StoryUnit(BaseModel):
 
 
 def get_contents_data() -> list[Content]:
-    with open(f"{SCRIPT_DIR}/resources/contents.json", "r") as file:
-        data = json.load(file)
-        contents = []
-        for entry in data:
-            contents.append(
-                Content(content_id=entry["content_id"], title=entry["title"], content_type=entry["content_type"])
-            )
-        return contents
+    # Content metadata no longer lives in a separate file: one entry per
+    # distinct content_id found in the episode .md frontmatter.
+    contents: dict[str, Content] = {}
+    for post in _load_episodes():
+        metadata = post.metadata
+        content_id = metadata["content_id"]
+        if content_id in contents:
+            continue
+        contents[content_id] = Content(
+            content_id=content_id,
+            title=metadata["title"],
+            content_type="TV_SHOW",
+        )
+    return list(contents.values())
 
 
 def get_seasons_data() -> list[Season]:
-    with open(f"{SCRIPT_DIR}/resources/contents.json", "r") as file:
-        data = json.load(file)
-        seasons = []
-        for content in data:
-            for season in content["seasons"]:
-                seasons.append(
-                    Season(season_id=season["season_id"], content_id=content["content_id"],
-                            season_number=season["season_number"], title=season["title"])
-                )
-        return seasons
+    # One entry per distinct season_id; the season number comes from the
+    # directory name (e.g. contents/wednesday/season01/episode-01.md -> 1).
+    seasons: dict[str, Season] = {}
+    for file_path, post in _iter_episode_files():
+        season_id = post.metadata["season_id"]
+        if season_id in seasons:
+            continue
+        season_number = _season_number(file_path)
+        seasons[season_id] = Season(
+            season_id=season_id,
+            content_id=post.metadata["content_id"],
+            season_number=season_number,
+            title=f"s{season_number}",
+        )
+    return list(seasons.values())
 
 
 def get_story_units_data() -> list[StoryUnit]:
-    contents_dir = Path(f"{SCRIPT_DIR}/resources/contents")
-    files = sorted(contents_dir.rglob("*.md"))
     story_units = []
-    for file_path in files:
-        data = frontmatter.load(file_path)
-        metadata = data.metadata
-        story_unit = StoryUnit(
-            story_unit_id=metadata["story_unit_id"],
-            content_id=metadata["content_id"],
-            season_id=metadata["season_id"],
-            story_unit_text=data.content,
-            story_order=metadata["story_order"],
-            unit_type=metadata["unit_type"],
-            unit_number=metadata["unit_number"],
-            title=metadata["episode_title"]
+    for _, post in _iter_episode_files():
+        metadata = post.metadata
+        story_units.append(
+            StoryUnit(
+                story_unit_id=metadata["story_unit_id"],
+                content_id=metadata["content_id"],
+                season_id=metadata["season_id"],
+                story_unit_text=post.content,
+                story_order=metadata["story_order"],
+                unit_type=metadata["unit_type"],
+                unit_number=metadata["unit_number"],
+                title=metadata["episode_title"]
+            )
         )
-        story_units.append(story_unit)
-
     return story_units
+
+
+def _iter_episode_files() -> list[tuple[Path, frontmatter.Post]]:
+    files = sorted(CONTENTS_DIR.rglob("*.md"))
+    return [(file_path, frontmatter.load(file_path)) for file_path in files]
+
+
+def _load_episodes() -> list[frontmatter.Post]:
+    return [post for _, post in _iter_episode_files()]
+
+
+def _season_number(file_path: Path) -> int:
+    for parent in file_path.parents:
+        match = _SEASON_DIR_PATTERN.match(parent.name)
+        if match:
+            return int(match.group(1))
+    raise ValueError(f"Episode file is not inside a 'season<N>' directory: {file_path}")

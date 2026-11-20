@@ -1,37 +1,51 @@
-import pandas as pd
-from evaluation.models.retrieval_models import RetrievalCase
+import json
+import re
 from pathlib import Path
+
+from evaluation.models.retrieval_models import RetrievalCase
+
+# Dataset refs are story-order based ("e{story_order}-c{chunk_index}") so they
+# survive re-chunking; they are resolved to chunk ids only at eval time.
+_CHUNK_REF_PATTERN = re.compile(r"^e(\d+)-c(\d+)$")
+_EPISODE_REF_PATTERN = re.compile(r"^e(\d+)$")
 
 
 class RetrievalDatasetLoader:
     def __init__(self):
-        self._path = f"{Path(__file__).resolve().parent.parent}/resources/retrieval_queries.csv"
-        
+        self._queries_dir = Path(__file__).resolve().parent.parent / "resources" / "queries"
+
     def load(self) -> list[RetrievalCase]:
-        dataframe = pd.read_csv(self._path)
+        cases: list[RetrievalCase] = []
+        for dataset_file in sorted(self._queries_dir.glob("*.json")):
+            with open(dataset_file, "r", encoding="utf-8") as file:
+                dataset = json.load(file)
+            cases.extend(self._parse_cases(dataset))
+        return cases
+
+    @staticmethod
+    def _parse_cases(dataset: dict) -> list[RetrievalCase]:
         return [
             RetrievalCase(
-                id=row["id"],
-                query=row["query"],
-                relevant_episodes=self._parse_values(
-                    row["relevant_episodes"]
+                id=case["id"],
+                query=case["query"],
+                case_type=case["type"],
+                user_story_order=int(case["user_story_order"]),
+                content_id=case["content_id"],
+                relevant_episodes=RetrievalDatasetLoader._parse_refs(
+                    case.get("relevant_episodes", []), _EPISODE_REF_PATTERN
                 ),
-                relevant_chunks=self._parse_values(
-                    row["relevant_chunks"]
+                relevant_chunks=RetrievalDatasetLoader._parse_refs(
+                    case.get("relevant_chunks", []), _CHUNK_REF_PATTERN
                 ),
-                max_story_order=int(row["max_story_order"]),
-                content_id=row["content_id"],
             )
-            for _, row in dataframe.iterrows()
+            for case in dataset["cases"]
         ]
 
     @staticmethod
-    def _parse_values(value) -> set[str]:
-        if pd.isna(value):
-            return set()
-
-        return {
-            item.strip()
-            for item in str(value).split()
-            if item.strip()
-        }
+    def _parse_refs(values: list, pattern: re.Pattern) -> set[str]:
+        refs = set()
+        for value in values:
+            if not pattern.match(value):
+                raise ValueError(f"Invalid dataset reference: {value!r}")
+            refs.add(value)
+        return refs

@@ -1,15 +1,13 @@
-langchain-ollama
 psycopg[binary]
 dotenv
 apscheduler
-
-langchain-text-splitters
-transformers
-
 fastapi[standard]
-
-langchain-google-genai
-
 python-frontmatter
+pandas
 
+langchain-ollama
+langchain-google-genai
+langchain-text-splitters
+
+transformers
 sentence-transformers
