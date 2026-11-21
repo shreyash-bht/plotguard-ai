@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/story-units")
+@RequestMapping(ApiPaths.V1 + "/story-units")
 public class KnowledgeChunkApi {
     @Autowired
     private KnowledgeChunkApiService knowledgeChunkApiService;

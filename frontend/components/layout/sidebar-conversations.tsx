@@ -25,7 +25,7 @@ interface SidebarItem {
 
 /**
  * Recent conversations, hydrated from the backend (`GET
- * /api/conversations/user/{userId}`), with display titles merged from the
+ * /api/v1/conversations/user/{userId}`), with display titles merged from the
  * local cache and fetched on demand for conversations created elsewhere.
  */
 export function SidebarConversations({ onNavigate }: { onNavigate?: () => void }) {

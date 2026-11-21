@@ -11,28 +11,28 @@ import type {
   CoreMessage,
 } from "@/types/conversation";
 
-/** Request body of `POST /api/conversations`. */
+/** Request body of `POST /api/v1/conversations`. */
 export interface NewConversationRequest {
   user_id: string;
   content_id: string;
   max_story_order: number;
 }
 
-/** Request body of `PATCH /api/conversations/{id}` (boundary update). */
+/** Request body of `PATCH /api/v1/conversations/{id}` (boundary update). */
 export interface UpdateConversationRequest {
   user_id: string;
   max_story_order: number;
 }
 
-/** POST /api/conversations — creates the durable conversation record. This
- * replaces the temporary AI-service `/test/conversations` workaround. Bumps
+/** POST /api/v1/conversations — creates the durable conversation record. This
+ * replaces the temporary AI-service `/api/ai/v1/test/conversations` workaround. Bumps
  * the conversation-store revision so open sidebars pick the new conversation
  * up without a page reload. */
 export function createConversation(
   request: NewConversationRequest,
   signal?: AbortSignal,
 ): Promise<CoreConversation> {
-  return coreApi.post<CoreConversation>("/conversations", request, signal).then(
+  return coreApi.post<CoreConversation>("/v1/conversations", request, signal).then(
     (conversation) => {
       useConversationStore.getState().notifyChanged();
       return conversation;
@@ -40,23 +40,23 @@ export function createConversation(
   );
 }
 
-/** GET /api/conversations/{id} */
+/** GET /api/v1/conversations/{id} */
 export function getCoreConversation(
   conversationId: string,
   signal?: AbortSignal,
 ): Promise<CoreConversation> {
-  return coreApi.get<CoreConversation>(`/conversations/${conversationId}`, signal);
+  return coreApi.get<CoreConversation>(`/v1/conversations/${conversationId}`, signal);
 }
 
-/** GET /api/conversations/user/{userId} — most recently active first. */
+/** GET /api/v1/conversations/user/{userId} — most recently active first. */
 export function listConversations(
   userId: string,
   signal?: AbortSignal,
 ): Promise<CoreConversation[]> {
-  return coreApi.get<CoreConversation[]>(`/conversations/user/${userId}`, signal);
+  return coreApi.get<CoreConversation[]>(`/v1/conversations/user/${userId}`, signal);
 }
 
-/** GET /api/conversations/{id}/messages?user_id={userId} — chronological
+/** GET /api/v1/conversations/{id}/messages?user_id={userId} — chronological
  * transcript, 404-style mismatches surface as generic ApiError (no
  * ControllerAdvice on the core API). */
 export function fetchConversationMessages(
@@ -65,12 +65,12 @@ export function fetchConversationMessages(
   signal?: AbortSignal,
 ): Promise<CoreMessage[]> {
   return coreApi.get<CoreMessage[]>(
-    `/conversations/${conversationId}/messages?user_id=${encodeURIComponent(userId)}`,
+    `/v1/conversations/${conversationId}/messages?user_id=${encodeURIComponent(userId)}`,
     signal,
   );
 }
 
-/** PATCH /api/conversations/{id} — persists a spoiler-boundary change. The
+/** PATCH /api/v1/conversations/{id} — persists a spoiler-boundary change. The
  * per-request `max_story_order` sent to the AI keeps chat correct regardless,
  * so callers may treat a failure here as non-fatal (consistency-only).
  * Bumps the store revision so sidebars reorder on the new updated_at. */
@@ -80,14 +80,14 @@ export function patchConversationBoundary(
   signal?: AbortSignal,
 ): Promise<CoreConversation> {
   return coreApi
-    .patch<CoreConversation>(`/conversations/${conversationId}`, request, signal)
+    .patch<CoreConversation>(`/v1/conversations/${conversationId}`, request, signal)
     .then((conversation) => {
       useConversationStore.getState().notifyChanged();
       return conversation;
     });
 }
 
-/** DELETE /api/conversations/{id}?user_id={userId} — removes the conversation
+/** DELETE /api/v1/conversations/{id}?user_id={userId} — removes the conversation
  * and all of its messages server-side (204). Ownership-scoped like the
  * messages endpoint; a user/conversation mismatch surfaces as 404 ApiError.
  * Marks the conversation deleted in the local store so every open sidebar
@@ -99,7 +99,7 @@ export function deleteConversation(
 ): Promise<void> {
   return coreApi
     .delete(
-      `/conversations/${conversationId}?user_id=${encodeURIComponent(userId)}`,
+      `/v1/conversations/${conversationId}?user_id=${encodeURIComponent(userId)}`,
       signal,
     )
     .then(() => {
@@ -110,7 +110,7 @@ export function deleteConversation(
 /** Title cache for display-only lookups (sidebar). */
 const titleCache = new Map<string, string>();
 
-/** GET /api/contents/{contentId}, reduced to the show title; cached. */
+/** GET /api/v1/contents/{contentId}, reduced to the show title; cached. */
 export async function fetchShowTitle(
   contentId: string,
   signal?: AbortSignal,

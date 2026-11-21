@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/conversations")
+@RequestMapping(ApiPaths.V1 + "/conversations")
 public class ConversationApi {
     @Autowired
     private ConversationApiService conversationApiService;

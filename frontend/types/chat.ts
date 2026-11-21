@@ -1,6 +1,6 @@
-/** Exact AI-service chat contracts (FastAPI, root_path /api/ai). */
+/** Exact AI-service chat contracts (FastAPI, root_path /api/ai, version /v1). */
 
-/** Request body of `POST /chat`. */
+/** Request body of `POST /api/ai/v1/chat`. */
 export interface ChatRequest {
   conversation_id: string;
   content_id: string;
@@ -27,7 +27,7 @@ export interface ChatMetadata {
   used_chunks: RetrievedChunk[];
 }
 
-/** Response of `POST /chat`. `answer` is LLM text (not streamed). */
+/** Response of `POST /api/ai/v1/chat`. `answer` is LLM text (not streamed). */
 export interface ChatResponse {
   answer: string;
   chat_metadata: ChatMetadata | null;

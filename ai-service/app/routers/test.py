@@ -11,7 +11,7 @@ from app.schema.conversations_request import ConversationRequest
 from app.schema.conversations_response import ConversationResponse
 from app.config.config import get_settings
 
-router = APIRouter(prefix="/test")
+router = APIRouter(prefix="/v1/test")
 
 settings = get_settings()
 container = ServiceContainer.get_service_container(settings)

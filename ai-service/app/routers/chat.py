@@ -10,7 +10,7 @@ settings = get_settings()
 container = ServiceContainer.get_service_container(settings)
 chatbot_service: ChatbotService = container.get_chatbot_service()
 
-router = APIRouter(prefix="/chat")
+router = APIRouter(prefix="/v1/chat")
 
 
 @router.post("")

@@ -13,7 +13,7 @@ ingestion_service: IngestionService = container.get_ingestion_service()
 chunking_repository = ChunkingRepository(settings.database_url)
 
 
-router = APIRouter(prefix="/story-unit-data")
+router = APIRouter(prefix="/v1/story-unit-data")
 
 
 @router.post("")

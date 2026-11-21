@@ -1,5 +1,6 @@
 package com.plotguard.api.login;
 
+import com.plotguard.api.api.ApiPaths;
 import com.plotguard.api.dto.NewTempUserDto;
 import com.plotguard.api.dto.NewUserDto;
 import com.plotguard.api.entity.Role;
@@ -21,7 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping(ApiPaths.V1 + "/auth")
 public class AuthAPI {
     @Autowired
     private UserRepository userRepository;
@@ -86,7 +87,7 @@ public class AuthAPI {
                 .build();
     }
 
-//    @PostMapping("/auth/register/admin")
+//    @PostMapping(ApiPaths.V1 + "/auth/register/admin")
 //    @PreAuthorize("hasRole('ADMIN')")
 //    public void addAdminUser(@RequestBody NewUserDto newUserDto) {
 //        User newUser = User.builder()

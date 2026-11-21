@@ -33,19 +33,14 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        // MUST come first: auth controllers are rooted at /auth
-        // (e.g. /auth/guest-register), so /api/core/auth/* maps accordingly.
-        source: "/api/core/auth/:path*",
-        destination: `${coreBackendOrigin}/auth/:path*`,
-      },
-      {
-        // Everything else on the core API is rooted at /api (e.g.
-        // /api/contents), and /api/** is the public permitAll() slice.
+        // All core endpoints, including auth, live under /api/v1.
+        // Browser: /api/core/v1/* -> Spring: /api/v1/*
         source: "/api/core/:path*",
         destination: `${coreBackendOrigin}/api/:path*`,
       },
       {
-        // FastAPI AI service expects /api/ai root_path (mounted behind a gateway)
+        // FastAPI AI service keeps /api/ai as its root_path; its routers are
+        // versioned under /v1, so /api/ai/v1/* -> /api/ai/v1/*.
         source: "/api/ai/:path*",
         destination: `${aiBackendOrigin}/api/ai/:path*`,
       },

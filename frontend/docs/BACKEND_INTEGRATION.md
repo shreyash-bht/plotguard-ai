@@ -6,8 +6,8 @@ Facts verified directly from source code. The frontend must follow these contrac
 
 | Service | Stack | Default port | Route prefix | CORS |
 |---|---|---|---|---|
-| Core API (`api/`) | Spring Boot 4.1, Java 21 | 8080 (unset) | none | **None configured** |
-| AI service (`ai-service/`) | FastAPI, port from Dockerfile | 8000 | `root_path="/api/ai"` | **No CORS middleware** |
+| Core API (`api/`) | Spring Boot 4.1, Java 21 | 8080 (unset) | `/api/v1` | **None configured** |
+| AI service (`ai-service/`) | FastAPI, port from Dockerfile | 8000 | `root_path="/api/ai"`, routers `/v1` | **No CORS middleware** |
 
 > Because neither service sends CORS headers, the browser cannot call them cross-origin.
 > The frontend proxies all calls through Next.js `rewrites`, making requests same-origin.
@@ -17,7 +17,7 @@ Facts verified directly from source code. The frontend must follow these contrac
 ## Core API (Spring Boot, :8080)
 
 ### Auth
-- `POST /auth/guest-register` — takes an empty/insignificant body.
+- `POST /api/v1/auth/guest-register` — takes an empty/insignificant body.
   Returns the **serialized `User` entity** (camelCase keys, no token):
   ```json
   {
@@ -30,26 +30,26 @@ Facts verified directly from source code. The frontend must follow these contrac
   - Username generated server-side (Adjective+Noun+1000–9999, e.g. "KitsuneRonin4321").
   - **No token is returned.** Temp users have no password, so JWT login is unavailable
     for them. JWTs expire after 15 min anyway (`security.jwt.expiration-time`).
-  - **Authz reality:** `/auth/**` and `/api/**` are `permitAll()`; only `anyRequest()`
-    (i.e. nothing else currently) requires auth. So the frontend sends no
-    Authorization header today; guest identity = the client-side stored `userId`.
+  - **Authz reality:** `/api/**` is `permitAll()`; only `anyRequest()` (i.e. nothing
+    else currently) requires auth. So the frontend sends no Authorization header
+    today; guest identity = the client-side stored `userId`.
   - Login DTO uses snake_case: `{ "user_id": "<uuid>", "password": "..." }` →
     `{ "token_type": "Bearer", "access_token": "<jwt>" }`. Not usable for guests.
 
 ### Content / seasons / story units (all GET endpoints are public, no pagination)
-- `GET /api/contents` → `Content[]`:
+- `GET /api/v1/contents` → `Content[]`:
   `{ contentId, title, description, contentType: "ANIME" | "TV_SHOW" | "MOVIE", releaseDate: "yyyy-MM-dd", createdAt, updatedAt }`
   - ⚠️ **No poster/artwork field exists on `Content`.**
-- `GET /api/contents/{contentId}` → single `Content` (entity-not-found surfaces as HTTP 500).
-- `GET /api/contents/{contentId}/seasons` → `Season[]`:
+- `GET /api/v1/contents/{contentId}` → single `Content` (entity-not-found surfaces as HTTP 500).
+- `GET /api/v1/contents/{contentId}/seasons` → `Season[]`:
   `{ seasonId, contentId, seasonNumber, title|null, description|null }`
-- `GET /api/contents/{contentId}/story-units` → `StoryUnit[]`:
+- `GET /api/v1/contents/{contentId}/story-units` → `StoryUnit[]`:
   `{ storyUnitId, contentId, seasonId|null, storyUnitType: "EPISODE"|"CHAPTER"|"OVA"|"MOVIE",
      unitNumber, title|null, description|null, storyOrder, releaseDate|null, createdAt, updatedAt }`
   - `storyOrder` is a **global, per-content ordering integer** (this is the spoiler-boundary unit).
   - `unitNumber` is per-season-like numbering (`unit_type` EPISODE etc.).
-- Write endpoints (`POST /api/contents`, `.../seasons`, `.../story-units`,
-  `POST /api/story-units/{id}/knowledge-chunks`) are ingest/admin surface — **not used by the frontend**.
+- Write endpoints (`POST /api/v1/contents`, `.../seasons`, `.../story-units`,
+  `POST /api/v1/story-units/{id}/knowledge-chunks`) are ingest/admin surface — **not used by the frontend**.
 
 ### Errors
 - No `@ControllerAdvice`, no standard error envelope. Not found → HTTP 500 with
@@ -57,17 +57,17 @@ Facts verified directly from source code. The frontend must follow these contrac
   and surface a generic message.
 
 ### Conversations / messages (implemented; `ConversationApi` + `MessageApi`)
-- `POST /api/conversations` request `{ user_id, content_id, max_story_order }` →
+- `POST /api/v1/conversations` request `{ user_id, content_id, max_story_order }` →
   serialized `Conversation` entity (**camelCase, DB-generated id**):
   `{ conversationId, userId, contentId, maxStoryOrder, createdAt, updatedAt }`
   - Validating: unknown user/content → 500 (EntityNotFoundException; no ControllerAdvice).
   - `conversation_id` must be omitted (rejected if supplied).
-- `GET /api/conversations/user/{userId}` → `Conversation[]`, most recently
-  `updatedAt` first (note: `updatedAt` only moves on a boundary PATCH — see gaps).
-- `GET /api/conversations/{conversationId}` → single `Conversation`.
-- `PATCH /api/conversations/{conversationId}` request `{ user_id, max_story_order }` →
+- `GET /api/v1/conversations/user/{userId}` → `Conversation[]`, most recently
+  `updatedAt` first (chat turns and boundary PATCHes both touch `updatedAt`).
+- `GET /api/v1/conversations/{conversationId}` → single `Conversation`.
+- `PATCH /api/v1/conversations/{conversationId}` request `{ user_id, max_story_order }` →
   updated `Conversation`; ownership-checked by user.
-- `GET /api/conversations/{conversationId}/messages?user_id={userId}` →
+- `GET /api/v1/conversations/{conversationId}/messages?user_id={userId}` →
   `Message[]` chronological (`createdAt` asc), ownership-checked:
   `{ messageId, conversationId, role: "user"|"assistant", originalContent,
      contextualizedContent, createdAt, updatedAt }`.
@@ -78,7 +78,7 @@ Facts verified directly from source code. The frontend must follow these contrac
 
 ## AI service (FastAPI, :8000, root_path `/api/ai`)
 
-- `POST /chat` → `{ "answer": "<markdown-ish LLM text>", "chat_metadata": <object|null> }`
+- `POST /api/ai/v1/chat` → `{ "answer": "<markdown-ish LLM text>", "chat_metadata": <object|null> }`
   Request:
   ```json
   {
@@ -98,12 +98,12 @@ Facts verified directly from source code. The frontend must follow these contrac
     conversation row — so **raising the boundary mid-conversation works per message**.
   - `chat_metadata` (`null` unless `is_send_metadata: true`) contains
     `contextualized_query`, `generation_time_seconds`, `token_usage`, `used_chunks[]`.
-- `POST /test/conversations` → `{ conversation_id, user_id, content_id, max_story_order }`
+- `POST /api/ai/v1/test/conversations` → `{ conversation_id, user_id, content_id, max_story_order }`
   Request: `{ user_id, content_id, max_story_order }`.
   - **Deprecated for the frontend** — now creates conversations via the core API
-    (`POST /api/core/conversations`, same shared database). The endpoint remains
+    (`POST /api/core/v1/conversations`, same shared database). The endpoint remains
     test/evaluation-only.
-- `POST /story-unit-data` + `GET /story-unit-data/{id}` — knowledge ingestion (admin, not frontend).
+- `POST /api/ai/v1/story-unit-data` + `GET /api/ai/v1/story-unit-data/{id}` — knowledge ingestion (admin, not frontend).
 - No auth checks of any kind.
 
 ## Gaps & frontend decisions
@@ -111,10 +111,9 @@ Facts verified directly from source code. The frontend must follow these contrac
 | Gap in backend | Frontend decision |
 |---|---|
 | No artwork/poster field on `Content` | Render generated placeholder artwork (title initial + deterministic gradient). Not fake data, just an image-less UI state. |
-| Conversation metadata carries no display titles/labels on the server | Local display cache (per guest, in storage) holds `showTitle`/boundary labels; the conversation index itself is server-hydrated (`GET /api/conversations/user/{userId}`). |
-| Sidebar conversations | Server list merged with the local display cache; titles for conversations created on other devices are fetched on demand (`GET /api/contents/{id}`). |
+| Conversation metadata carries no display titles/labels on the server | Local display cache (per guest, in storage) holds `showTitle`/boundary labels; the conversation index itself is server-hydrated (`GET /api/v1/conversations/user/{userId}`). |
+| Sidebar conversations | Server list merged with the local display cache; titles for conversations created on other devices are fetched on demand (`GET /api/v1/contents/{id}`). |
 | Guest registration returns no usable token | Guest user (id + username) is persisted client-side and reused; no Authorization header is sent. |
-| Conversations are now created via the core API | `POST /api/core/conversations` replaced the temporary AI-service `/test/conversations` workaround. |
+| Conversations are now created via the core API | `POST /api/core/v1/conversations` replaced the temporary AI-service `/api/ai/v1/test/conversations` workaround. |
 | No streaming chat endpoint | Show an active "thinking" indicator; render the full answer when it arrives. |
 | Errors = 500 with default Spring body | Global fetch wrapper normalizes errors into typed failures for UI. |
-| `conversations.updated_at` only moves on boundary PATCH | Sidebar "recent" ordering reflects last boundary change, not last message, until the record's timestamp is bumped on activity. |

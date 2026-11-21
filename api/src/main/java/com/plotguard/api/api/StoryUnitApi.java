@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping(ApiPaths.V1)
 public class StoryUnitApi {
     @Autowired
     private StoryUnitApiService storyUnitApiService;
