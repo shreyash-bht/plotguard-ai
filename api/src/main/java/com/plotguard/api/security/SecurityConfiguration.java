@@ -1,5 +1,6 @@
 package com.plotguard.api.security;
 
+import com.plotguard.api.api.ApiPaths;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,8 +34,7 @@ public class SecurityConfiguration {
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register/admin").authenticated()
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(ApiPaths.V1 + "/auth/register/admin").authenticated()
                         .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 );

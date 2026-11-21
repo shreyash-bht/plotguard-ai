@@ -1,4 +1,4 @@
-/** Mirror of the `POST /auth/guest-register` response (serialized User entity). */
+/** Mirror of the `POST /api/v1/auth/guest-register` response (serialized User entity). */
 export interface Role {
   role_id: number;
   roleName: string | null;

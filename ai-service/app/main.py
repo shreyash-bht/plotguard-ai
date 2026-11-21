@@ -39,6 +39,6 @@ app.include_router(story_unit_data.router)
 app.include_router(test.router)
 
 
-@app.get("")
-def hello():
-    return "hello, world"
+@app.get("/v1/health")
+def health():
+    return {"status": "ok"}

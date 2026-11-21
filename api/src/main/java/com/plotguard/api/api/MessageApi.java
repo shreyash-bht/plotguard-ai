@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/conversations/{conversationId}/messages")
+@RequestMapping(ApiPaths.V1 + "/conversations/{conversationId}/messages")
 public class MessageApi {
     @Autowired
     private MessageApiService messageApiService;

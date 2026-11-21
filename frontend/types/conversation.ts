@@ -1,8 +1,8 @@
 /** Conversation contracts served by the Spring Boot core API (camelCase,
- * rooted at /api/conversations) plus the client-side display ref. */
+ * rooted at /api/v1/conversations) plus the client-side display ref. */
 
-/** Response entity of `POST /api/conversations`, `GET /api/conversations/{id}`,
- * and `PATCH /api/conversations/{id}`. */
+/** Response entity of `POST /api/v1/conversations`, `GET /api/v1/conversations/{id}`,
+ * and `PATCH /api/v1/conversations/{id}`. */
 export interface CoreConversation {
   conversationId: string;
   userId: string;
@@ -16,7 +16,7 @@ export interface CoreConversation {
 /** Serialized `MessageRole` enum name, e.g. "USER"/"ASSISTANT" (uppercase). */
 export type CoreMessageRole = "USER" | "ASSISTANT";
 
-/** Element of `GET /api/conversations/{id}/messages` and the AI service's
+/** Element of `GET /api/v1/conversations/{id}/messages` and the AI service's
  * persisted turns (which land in the same database table). */
 export interface CoreMessage {
   messageId: string;

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/contents")
+@RequestMapping(ApiPaths.V1 + "/contents")
 public class ContentApi {
     @Autowired
     private ContentApiService contentApiService;

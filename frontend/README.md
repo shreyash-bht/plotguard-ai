@@ -19,8 +19,8 @@ npm run dev # http://localhost:3000
 
 Requires the two backend services to be running:
 
-- **Core API** (Spring Boot) on `http://localhost:8080` — users, contents, seasons, story units
-- **AI service** (FastAPI) on `http://localhost:8000` — conversations + chat (`root_path /api/ai`)
+- **Core API** (Spring Boot) on `http://localhost:8080` — users, contents, seasons, story units, conversations, messages
+- **AI service** (FastAPI) on `http://localhost:8000` — chat/RAG (`root_path /api/ai`, routes `/v1`)
 
 ## Configuration
 
@@ -66,12 +66,13 @@ docs/BACKEND_INTEGRATION.md  # Verified API contracts + known backend gaps
 Verified against source code; full detail in `docs/BACKEND_INTEGRATION.md`. Key
 facts encoded by the frontend:
 
-- `POST /auth/guest-register` returns the user entity only (no token; guest
-  users have no password, and core content endpoints are public), so the guest
-  user object is the client-side identity.
-- `POST /test/conversations` (AI service) is the only endpoint that creates
-  conversations today; `POST /chat` fetches history server-side by
-  `conversation_id` and takes `max_story_order` — the spoiler boundary — per
-  request.
-- There is no endpoint to list conversations or fetch message history, so the
-  sidebar conversation index lives in client storage (see doc for details).
+- `POST /api/v1/auth/guest-register` returns the user entity only (no token;
+  guest users have no password, and core content endpoints are public), so the
+  guest user object is the client-side identity.
+- Conversations are created through the core API
+  (`POST /api/core/v1/conversations`); the AI service
+  (`POST /api/ai/v1/chat`) fetches history server-side by `conversation_id`
+  and takes `max_story_order` — the spoiler boundary — per request.
+- Conversation lists and message history are served by the core API
+  (`GET /api/core/v1/conversations/user/{userId}` and
+  `GET /api/core/v1/conversations/{id}/messages`).
