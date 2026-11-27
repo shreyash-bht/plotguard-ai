@@ -65,7 +65,7 @@ public class AuthAPI {
     }
 
     @PostMapping("/guest-register")
-    public User addNewTempUser(@RequestBody NewTempUserDto newTempUserDto) {
+    public GuestSessionResponse addNewTempUser(@RequestBody NewTempUserDto newTempUserDto) {
         User newUser = User.builder()
                 .username(usernameGeneratorService.generateUsername())
                 .isTempUser(Boolean.TRUE)
@@ -73,7 +73,15 @@ public class AuthAPI {
                 .build();
         Optional<Role> roles = roleRepository.findById(ROLE_USER_ID);
         newUser.setRoles(Set.of(roles.get()));
-        return userRepository.save(newUser);
+        User savedUser = userRepository.save(newUser);
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(savedUser.getUserId().toString());
+        return GuestSessionResponse.builder()
+                .tokenType(TOKEN_TYPE)
+                .accessToken(jwtService.generateToken(userDetails))
+                .expiresIn(jwtService.getExpirationTime() / 1000)
+                .user(UserResponse.from(savedUser))
+                .build();
     }
 
     @PostMapping("/login")

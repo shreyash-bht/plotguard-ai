@@ -16,10 +16,6 @@ public class NewConversationDto {
     @JsonProperty("conversation_id")
     private UUID conversationId;
 
-    @JsonProperty("user_id")
-    @NonNull
-    private UUID userId;
-
     @JsonProperty("content_id")
     @NonNull
     private UUID contentId;

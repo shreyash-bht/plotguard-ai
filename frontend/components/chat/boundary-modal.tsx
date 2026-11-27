@@ -108,7 +108,6 @@ export function BoundaryModal({ open, onClose, conversationId }: BoundaryModalPr
     setPatchError(null);
     try {
       await patchConversationBoundary(conversation.conversation_id, {
-        user_id: user.userId,
         max_story_order: maxStoryOrder,
       });
       onClose();

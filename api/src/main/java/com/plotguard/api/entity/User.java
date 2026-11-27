@@ -1,5 +1,6 @@
 package com.plotguard.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,6 +30,7 @@ public class User {
     @Column(name= "email_id")
     private String emailId;
 
+    @JsonIgnore
     @Column(name= "password_hash")
     private String passwordHash;
 

@@ -56,21 +56,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (username != null &&
                 SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request)
-                );
-                SecurityContextHolder
-                        .getContext()
-                        .setAuthentication(authToken);
+            try {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource()
+                                    .buildDetails(request)
+                    );
+                    SecurityContextHolder
+                            .getContext()
+                            .setAuthentication(authToken);
+                }
+            } catch (Exception e) {
+                // Unknown user, expired/malformed token, etc. Leave the request
+                // unauthenticated so the security chain answers with 401.
+                SecurityContextHolder.clearContext();
             }
         }
         filterChain.doFilter(request, response);

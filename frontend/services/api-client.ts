@@ -1,4 +1,5 @@
-import { API_BASE_URL, AI_API_BASE_URL } from "@/lib/config";
+import { API_BASE_URL } from "@/lib/config";
+import { useSessionStore } from "@/stores/session";
 
 export class ApiError extends Error {
   readonly status: number;
@@ -13,12 +14,17 @@ export class ApiError extends Error {
 const DEFAULT_TIMEOUT_MS = 30_000;
 
 async function request<T>(base: string, path: string, init?: RequestInit): Promise<T> {
+  // Read at request time (not module load) so hydration and re-registration are
+  // respected. Cross-origin callers get no token; the core API is same-origin.
+  const token = useSessionStore.getState().token;
+
   let response: Response;
   try {
     response = await fetch(`${base}${path}`, {
       ...init,
       headers: {
         "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(init?.headers ?? {}),
       },
       cache: "no-store",
@@ -34,9 +40,17 @@ async function request<T>(base: string, path: string, init?: RequestInit): Promi
     );
   }
 
+  if (response.status === 401) {
+    // Token expired/invalid: drop the session so the guest boot can re-register
+    // a fresh identity instead of retrying with a dead token.
+    useSessionStore.getState().clearSession();
+    throw new ApiError(
+      "Your session expired. Reconnecting with a new guest session.",
+      401,
+    );
+  }
+
   if (!response.ok) {
-    // Error bodies vary between the two services (Spring default body, FastAPI
-    // validation detail); best-effort message extraction.
     let message = `Request failed with status ${response.status}.`;
     try {
       const body: unknown = await response.json();
@@ -46,11 +60,6 @@ async function request<T>(base: string, path: string, init?: RequestInit): Promi
           message = record.error;
         } else if (typeof record.detail === "string") {
           message = record.detail;
-        } else if (Array.isArray(record.detail) && record.detail.length > 0) {
-          const first = record.detail[0] as Record<string, unknown>;
-          if (typeof first?.msg === "string") {
-            message = first.msg;
-          }
         }
       }
     } catch {
@@ -91,8 +100,5 @@ function createClient(base: string): ApiClient {
   };
 }
 
-/** Spring Boot core API (users, contents, seasons, story units). */
+/** Spring Boot core API — the only public backend entry point. */
 export const coreApi = createClient(API_BASE_URL);
-
-/** FastAPI AI service (conversations, chat). */
-export const aiApi = createClient(AI_API_BASE_URL);

@@ -13,14 +13,12 @@ import type {
 
 /** Request body of `POST /api/v1/conversations`. */
 export interface NewConversationRequest {
-  user_id: string;
   content_id: string;
   max_story_order: number;
 }
 
 /** Request body of `PATCH /api/v1/conversations/{id}` (boundary update). */
 export interface UpdateConversationRequest {
-  user_id: string;
   max_story_order: number;
 }
 
@@ -48,24 +46,23 @@ export function getCoreConversation(
   return coreApi.get<CoreConversation>(`/v1/conversations/${conversationId}`, signal);
 }
 
-/** GET /api/v1/conversations/user/{userId} — most recently active first. */
+/** GET /api/v1/conversations — the authenticated user's conversations, most
+ * recently active first. */
 export function listConversations(
-  userId: string,
   signal?: AbortSignal,
 ): Promise<CoreConversation[]> {
-  return coreApi.get<CoreConversation[]>(`/v1/conversations/user/${userId}`, signal);
+  return coreApi.get<CoreConversation[]>("/v1/conversations", signal);
 }
 
-/** GET /api/v1/conversations/{id}/messages?user_id={userId} — chronological
- * transcript, 404-style mismatches surface as generic ApiError (no
- * ControllerAdvice on the core API). */
+/** GET /api/v1/conversations/{id}/messages — chronological transcript. The
+ * server scopes the read to the authenticated user; another user's conversation
+ * surfaces as 404. */
 export function fetchConversationMessages(
   conversationId: string,
-  userId: string,
   signal?: AbortSignal,
 ): Promise<CoreMessage[]> {
   return coreApi.get<CoreMessage[]>(
-    `/v1/conversations/${conversationId}/messages?user_id=${encodeURIComponent(userId)}`,
+    `/v1/conversations/${conversationId}/messages`,
     signal,
   );
 }
@@ -87,21 +84,16 @@ export function patchConversationBoundary(
     });
 }
 
-/** DELETE /api/v1/conversations/{id}?user_id={userId} — removes the conversation
- * and all of its messages server-side (204). Ownership-scoped like the
- * messages endpoint; a user/conversation mismatch surfaces as 404 ApiError.
- * Marks the conversation deleted in the local store so every open sidebar
- * hides it immediately. */
+/** DELETE /api/v1/conversations/{id} — removes the conversation and all of its
+ * messages server-side (204). Ownership-scoped; a user/conversation mismatch
+ * surfaces as 404. Marks the conversation deleted in the local store so every
+ * open sidebar hides it immediately. */
 export function deleteConversation(
   conversationId: string,
-  userId: string,
   signal?: AbortSignal,
 ): Promise<void> {
   return coreApi
-    .delete(
-      `/v1/conversations/${conversationId}?user_id=${encodeURIComponent(userId)}`,
-      signal,
-    )
+    .delete(`/v1/conversations/${conversationId}`, signal)
     .then(() => {
       useConversationStore.getState().remove(conversationId);
     });

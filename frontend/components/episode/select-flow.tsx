@@ -86,7 +86,6 @@ export function SelectFlow({ initialShowId }: { initialShowId?: string }) {  con
     setCreateError(null);
     try {
       const conversation = await createConversation({
-        user_id: user.userId,
         content_id: content.contentId,
         max_story_order: selected.storyOrder ?? selected.unitNumber,
       });

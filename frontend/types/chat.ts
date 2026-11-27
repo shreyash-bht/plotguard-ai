@@ -1,11 +1,13 @@
-/** Exact AI-service chat contracts (FastAPI, root_path /api/ai, version /v1). */
+/** Chat contracts. Requests go through the core API; the AI service is internal. */
 
-/** Request body of `POST /api/ai/v1/chat`. */
+/**
+ * Request body of `POST /api/v1/conversations/{conversationId}/chat`.
+ * `conversation_id` and `content_id` are resolved server-side and are not
+ * accepted from the client.
+ */
 export interface ChatRequest {
-  conversation_id: string;
-  content_id: string;
-  max_story_order: number;
   user_question: string;
+  max_story_order: number;
   is_send_metadata?: boolean;
   /** `null`/omitted means "use the service's configured default". */
   enable_reranking?: boolean | null;
@@ -27,7 +29,7 @@ export interface ChatMetadata {
   used_chunks: RetrievedChunk[];
 }
 
-/** Response of `POST /api/ai/v1/chat`. `answer` is LLM text (not streamed). */
+/** Response of the chat endpoint. `answer` is LLM text (not streamed). */
 export interface ChatResponse {
   answer: string;
   chat_metadata: ChatMetadata | null;
