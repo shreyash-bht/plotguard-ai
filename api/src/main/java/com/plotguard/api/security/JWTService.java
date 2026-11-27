@@ -24,6 +24,11 @@ public class JWTService {
         return generateToken(Map.of(), userDetails);
     }
 
+    /** Configured token lifetime in milliseconds. */
+    public long getExpirationTime() {
+        return jwtConfig.getExpirationTime();
+    }
+
     public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails

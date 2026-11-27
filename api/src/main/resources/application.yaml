@@ -12,3 +12,10 @@ security:
   jwt:
     secret-key: afiaghorjsdkflkasjdfsdfasdjakgjoaeruighuiarhguiargiuarguaergareegiargjlklkaafd
     expiration-time: 900000   # 15 minutes in milliseconds
+
+ai:
+  service:
+    # Internal-only service. Include the FastAPI root path (/api/ai).
+    base-url: ${AI_SERVICE_BASE_URL:http://localhost:8000/api/ai}
+    connect-timeout: 5s
+    read-timeout: 120s

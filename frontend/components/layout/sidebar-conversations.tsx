@@ -25,8 +25,9 @@ interface SidebarItem {
 
 /**
  * Recent conversations, hydrated from the backend (`GET
- * /api/v1/conversations/user/{userId}`), with display titles merged from the
- * local cache and fetched on demand for conversations created elsewhere.
+ * /api/v1/conversations`, scoped to the authenticated guest), with display
+ * titles merged from the local cache and fetched on demand for conversations
+ * created elsewhere.
  */
 export function SidebarConversations({ onNavigate }: { onNavigate?: () => void }) {
   const user = useSessionStore((s) => s.user);
@@ -51,7 +52,7 @@ export function SidebarConversations({ onNavigate }: { onNavigate?: () => void }
     // Deferred: kicks off async loading outside the effect's synchronous pass
     // (React lint: no cascading setState in effects).
     queueMicrotask(() => {
-      void listConversations(user.userId, controller.signal)
+      void listConversations(controller.signal)
         .then(async (list) => {
           if (!alive) return;
           setConversations(list);
@@ -102,7 +103,7 @@ export function SidebarConversations({ onNavigate }: { onNavigate?: () => void }
     try {
       // The service marks the conversation deleted in the shared store, which
       // filters it out of this list and every other mounted sidebar instance.
-      await deleteConversation(conversationId, user.userId);
+      await deleteConversation(conversationId);
       setConfirmId(null);
       // The deleted conversation may be the one currently open — leave it.
       // Read synchronously here instead of usePathname(): a URL-data hook in

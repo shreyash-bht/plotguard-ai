@@ -73,7 +73,6 @@ export function ChatView({ conversationId }: ChatViewProps) {
           await ensureConversationRef(conversationId, controller.signal);
           const serverMessages = await fetchConversationMessages(
             conversationId,
-            user.userId,
             controller.signal,
           );
           if (!alive) return;
@@ -114,9 +113,7 @@ export function ChatView({ conversationId }: ChatViewProps) {
       lastFailedQuestion.current = question;
 
       try {
-        const response = await sendChatMessage({
-          conversation_id: conversation.conversation_id,
-          content_id: conversation.content_id,
+        const response = await sendChatMessage(conversation.conversation_id, {
           max_story_order: conversation.max_story_order,
           user_question: question,
           is_send_metadata: false,

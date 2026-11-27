@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.UUID;
 
 @Component
 public class CustomUserDetails implements UserDetails {
@@ -16,6 +17,10 @@ public class CustomUserDetails implements UserDetails {
     public CustomUserDetails() {}
     public CustomUserDetails(User user){
         this.user = user;
+    }
+
+    public UUID getUserId() {
+        return user.getUserId();
     }
 
     @Override

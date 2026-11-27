@@ -7,12 +7,11 @@ import type { NextConfig } from "next";
 const projectDir = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * Backend origin overrides (server-only env, read when building the proxy table).
- * Keep the browser-facing NEXT_PUBLIC_* values as-is; only migrate these if the
- * backends live on another host.
+ * Backend origin override (server-only env, read when building the proxy table).
+ * Keep the browser-facing NEXT_PUBLIC_API_BASE_URL as-is; only migrate this if
+ * the core API lives on another host.
  */
 const coreBackendOrigin = process.env.CORE_API_ORIGIN ?? "http://localhost:8080";
-const aiBackendOrigin = process.env.AI_API_ORIGIN ?? "http://localhost:8000";
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -35,14 +34,10 @@ const nextConfig: NextConfig = {
       {
         // All core endpoints, including auth, live under /api/v1.
         // Browser: /api/core/v1/* -> Spring: /api/v1/*
+        // The AI service is internal-only: the browser never calls it directly;
+        // chat is proxied by Spring at /api/v1/conversations/{id}/chat.
         source: "/api/core/:path*",
         destination: `${coreBackendOrigin}/api/:path*`,
-      },
-      {
-        // FastAPI AI service keeps /api/ai as its root_path; its routers are
-        // versioned under /v1, so /api/ai/v1/* -> /api/ai/v1/*.
-        source: "/api/ai/:path*",
-        destination: `${aiBackendOrigin}/api/ai/:path*`,
       },
     ];
   },

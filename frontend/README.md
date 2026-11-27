@@ -19,8 +19,10 @@ npm run dev # http://localhost:3000
 
 Requires the two backend services to be running:
 
-- **Core API** (Spring Boot) on `http://localhost:8080` — users, contents, seasons, story units, conversations, messages
-- **AI service** (FastAPI) on `http://localhost:8000` — chat/RAG (`root_path /api/ai`, routes `/v1`)
+- **Core API** (Spring Boot) on `http://localhost:8080` — the only public backend:
+  users, auth, contents, seasons, story units, conversations, messages, chat proxy
+- **AI service** (FastAPI) on `http://localhost:8000` — internal chat/RAG
+  (`root_path /api/ai`, routes `/v1`), called only by the core API
 
 ## Configuration
 
@@ -29,18 +31,15 @@ Copy/see `.env.local`:
 | Variable | Default | Purpose |
 |---|---|---|
 | `NEXT_PUBLIC_API_BASE_URL` | `/api/core` | Core API base URL used by the client |
-| `NEXT_PUBLIC_AI_API_BASE_URL` | `/api/ai` | AI service base URL used by the client |
 | `CORE_API_ORIGIN` | `http://localhost:8080` | Server-side rewrite target for the core API |
-| `AI_API_ORIGIN` | `http://localhost:8000` | Server-side rewrite target for the AI service |
 
-Neither backend sends CORS headers, so by default all client requests go through
-same-origin proxy rewrites defined in `next.config.ts`:
+The core backend sends no CORS headers, so by default all client requests go
+through the same-origin proxy rewrite defined in `next.config.ts`:
 
 - `/api/core/:path*` → `${CORE_API_ORIGIN}/api/:path*`
-- `/api/ai/:path*` → `${AI_API_ORIGIN}/api/ai/:path*`
 
-Set absolute `NEXT_PUBLIC_*` values (and matching CORS setup) to call the
-services directly from the browser instead.
+The AI service is not proxied: the browser never calls it. Chat is served by
+Spring at `POST /api/v1/conversations/{id}/chat`, which proxies internally.
 
 ## Architecture
 
@@ -66,13 +65,17 @@ docs/BACKEND_INTEGRATION.md  # Verified API contracts + known backend gaps
 Verified against source code; full detail in `docs/BACKEND_INTEGRATION.md`. Key
 facts encoded by the frontend:
 
-- `POST /api/v1/auth/guest-register` returns the user entity only (no token;
-  guest users have no password, and core content endpoints are public), so the
-  guest user object is the client-side identity.
+- `POST /api/v1/auth/guest-register` returns a bearer token plus a sanitized user
+  (no `passwordHash`). The token is persisted with the user; every conversation
+  and message call sends `Authorization: Bearer <token>`.
+- Tokens expire after 15 minutes and there is no refresh endpoint. On 401 the
+  session is cleared and the app registers a new guest.
 - Conversations are created through the core API
-  (`POST /api/core/v1/conversations`); the AI service
-  (`POST /api/ai/v1/chat`) fetches history server-side by `conversation_id`
-  and takes `max_story_order` — the spoiler boundary — per request.
+  (`POST /api/core/v1/conversations`); `user_id` is never sent — the server
+  derives it from the token.
+- Chat goes to `POST /api/core/v1/conversations/{id}/chat`. Spring verifies
+  ownership, injects the stored `content_id`, and proxies to the internal AI
+  service. The browser has no AI-service route.
 - Conversation lists and message history are served by the core API
-  (`GET /api/core/v1/conversations/user/{userId}` and
+  (`GET /api/core/v1/conversations` and
   `GET /api/core/v1/conversations/{id}/messages`).

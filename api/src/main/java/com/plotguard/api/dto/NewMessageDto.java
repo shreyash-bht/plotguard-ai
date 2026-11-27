@@ -20,10 +20,6 @@ public class NewMessageDto {
     @JsonProperty("conversation_id")
     private UUID conversationId;
 
-    @JsonProperty("user_id")
-    @NonNull
-    private UUID userId;
-
     @JsonProperty("role")
     private MessageRole role;
 

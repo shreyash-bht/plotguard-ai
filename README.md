@@ -22,9 +22,13 @@ LLM → spoiler-safe answer
 
 | Module | Stack | Port | Role |
 |---|---|---|---|
-| `frontend/` | Next.js (React, TypeScript) | 3000 | Chat UI, guest sessions, spoiler-boundary picker; proxies both backends |
-| `api/` | Spring Boot (Java, JPA, Flyway, JWT) | 8080 | Users, auth, content/seasons/episodes, conversations + messages |
-| `ai-service/` | FastAPI (LangChain, PostgreSQL/pgvector) | 8000 | RAG pipeline: contextualisation, embeddings, retrieval, LLM |
+| `frontend/` | Next.js (React, TypeScript) | 3000 | Chat UI, guest sessions, spoiler-boundary picker; proxies the core API |
+| `api/` | Spring Boot (Java, JPA, Flyway, JWT) | 8080 | Public API: users, auth, content, conversations + messages, chat proxy |
+| `ai-service/` | FastAPI (LangChain, PostgreSQL/pgvector) | 8000 | Internal RAG pipeline: contextualisation, embeddings, retrieval, LLM |
+
+The core API is the only public backend. The AI service is internal-only: the
+browser never calls it directly, and Spring proxies chat to it over the local
+network.
 
 Both backend services share a PostgreSQL database. The AI service persists every turn (question + answer) to the same `messages` table the core API reads, so chat history survives refreshes and devices.
 

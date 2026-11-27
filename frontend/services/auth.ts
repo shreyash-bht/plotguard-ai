@@ -1,12 +1,11 @@
 import { coreApi } from "@/services/api-client";
-import type { GuestUser } from "@/types/user";
+import type { GuestSession } from "@/types/user";
 
 /**
  * POST /api/v1/auth/guest-register.
- * Returns the serialized User entity only — no token, and temp users have no
- * password, so the client keeps the raw user object as their identity. Backend
- * content endpoints are public, so no Authorization header is required today.
+ * Returns a bearer token plus a sanitized user. Callers persist both (see
+ * `useSessionStore`); every conversation/message request requires the token.
  */
-export function registerGuest(signal?: AbortSignal): Promise<GuestUser> {
-  return coreApi.post<GuestUser>("/v1/auth/guest-register", {}, signal);
+export function registerGuest(signal?: AbortSignal): Promise<GuestSession> {
+  return coreApi.post<GuestSession>("/v1/auth/guest-register", {}, signal);
 }

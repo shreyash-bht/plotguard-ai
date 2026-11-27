@@ -19,10 +19,6 @@ public class UpdateConversationDto {
     @JsonProperty("conversation_id")
     private UUID conversationId;
 
-    @JsonProperty("user_id")
-    @NonNull
-    private UUID userId;
-
     @JsonProperty("max_story_order")
     @NonNull
     private Integer maxStoryOrder;

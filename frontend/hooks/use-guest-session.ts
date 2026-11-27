@@ -17,21 +17,21 @@ interface SessionResult {
 /**
  * In-flight registerGuest shared across every mount (StrictMode double-effects,
  * multiple tabs of the same page), so at most one guest is ever registered.
+ * Cleared when settled so a 401-triggered logout can register a fresh guest.
  */
 let inflight: Promise<GuestUser> | null = null;
 
 function ensureGuest(): Promise<GuestUser> {
-  const existing = useSessionStore.getState().user;
-  if (existing) return Promise.resolve(existing);
+  const { user, token } = useSessionStore.getState();
+  if (user && token) return Promise.resolve(user);
   if (!inflight) {
     inflight = registerGuest()
-      .then((user) => {
-        useSessionStore.getState().setUser(user);
-        return user;
+      .then((session) => {
+        useSessionStore.getState().setSession(session);
+        return session.user;
       })
-      .catch((error) => {
+      .finally(() => {
         inflight = null;
-        throw error;
       });
   }
   return inflight;
@@ -40,11 +40,12 @@ function ensureGuest(): Promise<GuestUser> {
 /** Fires guest registration; used for implicit bootstrapping (sidebar). */
 export function useGuestSession(): SessionResult {
   const user = useSessionStore((s) => s.user);
+  const token = useSessionStore((s) => s.token);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    if (user) return;
+    if (user && token) return;
     let alive = true;
     ensureGuest()
       .then(() => {
@@ -57,10 +58,11 @@ export function useGuestSession(): SessionResult {
     return () => {
       alive = false;
     };
-  }, [user, attempt]);
+  }, [user, token, attempt]);
 
   // Derived: avoids synchronous setState inside the effect.
-  const status: SessionStatus = user ? "has-user" : failed ? "failed" : "registering";
+  const status: SessionStatus =
+    user && token ? "has-user" : failed ? "failed" : "registering";
 
   const retry = useCallback(() => setAttempt((n) => n + 1), []);
   return { user, status, retry };
